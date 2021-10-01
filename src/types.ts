@@ -24,6 +24,7 @@ interface StateLayout {
   tick: number;
   me: AgentLayout;
   camera: Matter.Vector;
+  scale: number;
   frame: Matter.Vector;
   center: Matter.Vector;
   entities: EntityLayout[];

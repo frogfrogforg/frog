@@ -37,10 +37,10 @@ function tick() {
     state.agents = agents.map(agent => updateAgent(agent, state.tick));
 
     // debug.innerHTML = state.tick;
-    updateCamera(elapsedTicks);
   }
+  updateCamera(elapsedTicks, godmode);
 
-  render(godmode);
+  render();
 
   if (i % 10 == 0) {
     sendUpdate();

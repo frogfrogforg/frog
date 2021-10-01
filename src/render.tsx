@@ -67,51 +67,18 @@ function renderAgent(agent: AgentLayout, i: number) {
     </React.Fragment>
   );
 }
-function render(godmode:boolean) {
-  const { camera, entities, me, agents, center, frame } = getState();
-  //let cameraPos = Vector.sub(center, camera); 
-  let cameraCenter = camera;
-  // let cameraPos = Vector.sub(camera, center); // cameraPos is top-left corner of camera
-  let scale = 1.0;
+function render() {
+  const { camera, entities, me, agents, center, frame, scale } = getState();
 
-  if (godmode) {
-    const imageSize = 500; // seems to be the max w/h of images
-    // Find bounds of map
-    const bounds = entities.reduce((acc, {pos, scale}) => {
-      return {
-        minX: Math.min(acc.minX, pos.x - scale*imageSize/2),
-        maxX: Math.max(acc.maxX, pos.x + scale*imageSize/2),
-        minY: Math.min(acc.minY, pos.y - scale*imageSize/2),
-        maxY: Math.max(acc.maxY, pos.y + scale*imageSize/2)
-      }
-    }, {
-      minX: Number.POSITIVE_INFINITY,
-      maxX: Number.NEGATIVE_INFINITY,
-      minY: Number.POSITIVE_INFINITY,
-      maxY: Number.NEGATIVE_INFINITY
-    });
-
-
-    cameraCenter = {
-      x: 0.5*(bounds.minX + bounds.maxX),
-      y: 0.5*(bounds.minY + bounds.maxY)
-    }
-
-    //console.log(bounds);
-
-    const padding = 100;
-
-    const scaleX = frame.x/(bounds.maxX - bounds.minX + 2*padding);
-    const scaleY = frame.y/(bounds.maxY - bounds.minY + 2*padding);
-    scale = Math.min(1.0, scaleX, scaleY);
-  }
-
-  let cameraPos = Vector.sub(cameraCenter, center); // cameraPos is top-left corner of camera
-
+  let cameraPos = Vector.sub(camera, center); // cameraPos is top-left corner of camera
+  
   const element = (
     <div id="scaling-frame"
       style={{
-                transform: `scale(${scale}) translate(${-cameraPos.x}px, ${-cameraPos.y}px`
+                transform: `
+                scale(${scale})
+                translate(${-cameraPos.x}px, ${-cameraPos.y}px)
+                `
               }}
     >
       {agents.map(renderAgent)}
