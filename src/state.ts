@@ -20,6 +20,7 @@ let state: StateLayout = {
     color: Math.random() * 360
   },
   camera: { x: 0, y: 0 },
+  scale: 1.0,
   frame: { x: 0, y: 0 },
   center: { x: 0, y: 0 },
   entities: [],

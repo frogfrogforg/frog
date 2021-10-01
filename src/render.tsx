@@ -25,7 +25,7 @@ function renderAgent(agent: AgentLayout, i: number) {
   let { pos, moving, facing, color, word } = agent;
 
   let newsrc = moving ? walk : stand;
-  let relPos = Vector.add(Vector.sub(pos, camera), center);
+  // let relPos = Vector.add(Vector.sub(pos, camera), center);
 
   return (
     <React.Fragment key={i}>
@@ -45,8 +45,8 @@ function renderAgent(agent: AgentLayout, i: number) {
         className="speech"
         key={"w" + agent.uuid}
         style={{
-          left: relPos.x,
-          top: relPos.y
+          left: pos.x,
+          top: pos.y
           // filter: `sepia(1) saturate(2.5) hue-rotate(${color}deg)`,
           // transform: `translate(-50%, -75%)`
         }}
@@ -58,8 +58,8 @@ function renderAgent(agent: AgentLayout, i: number) {
         src={newsrc}
         key={agent.uuid}
         style={{
-          left: relPos.x,
-          top: relPos.y,
+          left: pos.x,
+          top: pos.y,
           filter: `saturate(2.5) hue-rotate(${color}deg)`,
           transform: `translate(-50%, -75%) scaleX(${facing ? -1 : 1})`
         }}
@@ -68,10 +68,19 @@ function renderAgent(agent: AgentLayout, i: number) {
   );
 }
 function render() {
-  const { camera, entities, me, agents, center } = getState();
-  const cameraPos = Vector.sub(center, camera);
+  const { camera, entities, me, agents, center, frame, scale } = getState();
+
+  let cameraPos = Vector.sub(camera, center); // cameraPos is top-left corner of camera
+  
   const element = (
-    <React.Fragment>
+    <div id="scaling-frame"
+      style={{
+                transform: `
+                scale(${scale})
+                translate(${-cameraPos.x}px, ${-cameraPos.y}px)
+                `
+              }}
+    >
       {agents.map(renderAgent)}
       <div
         id="entities"
@@ -79,10 +88,9 @@ function render() {
           deleting: window.deleteMode,
           moving: window.moveMode
         })}
-        style={{ transform: `translate(${cameraPos.x}px,${cameraPos.y}px ) ` }}
       >
         <div id="info">
-	  <img src={hello_frog} ></img>
+	        <img src={hello_frog} ></img>
           <p style={{ float: "right" }}>Hello Friends, this is our collaborative frog trying to frog the opportunity of a bunch of frog online froging frog frog frog frog because so far I don’t really know what to do</p>
         </div>
         {entities.map(({ url, pos, scale, uuid }, i) => {
@@ -108,7 +116,7 @@ function render() {
           );
         })}
       </div>
-    </React.Fragment>
+    </div>
   );
   ReactDOM.render(element, document.getElementById("window"));
   dragElement(document.getElementById("window"));

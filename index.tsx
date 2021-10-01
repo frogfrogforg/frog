@@ -6,8 +6,17 @@ import { updateCamera } from "./src/camera";
 import { updateAgent } from "./src/movement";
 import { sendUpdate, requestClockSync } from "./src/client";
 import { getState } from "./src/state";
-startInput();
-startUI();
+
+const urlSearchParams = new URLSearchParams(window.location.search);
+const params = Object.fromEntries(urlSearchParams.entries());
+const godmode:boolean = "godmode" in params;
+// in godmode, just show a zoomed out view of the world, don't handle input or movement or anything
+
+if (!godmode) {
+  startInput();
+  startUI();
+}
+
 let i = 0;
 
 let debug = document.getElementById("debug");
@@ -22,13 +31,17 @@ function tick() {
   let elapsedTicks = elapsedMillis / millisPerTick;
   state.tick += elapsedTicks;
 
-  state.me = updateAgent(me, state.tick);
-  // console.log("agents:");
-  state.agents = agents.map(agent => updateAgent(agent, state.tick));
+  if (!godmode) {
+    state.me = updateAgent(me, state.tick);
+    // console.log("agents:");
+    state.agents = agents.map(agent => updateAgent(agent, state.tick));
 
-  // debug.innerHTML = state.tick;
-  updateCamera(elapsedTicks);
+    // debug.innerHTML = state.tick;
+  }
+  updateCamera(elapsedTicks, godmode);
+
   render();
+
   if (i % 10 == 0) {
     sendUpdate();
   }
