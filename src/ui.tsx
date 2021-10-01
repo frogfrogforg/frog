@@ -12,7 +12,7 @@ import subtract from "./../assets/subtract.gif";
 
 import { readAndCompressImage } from "browser-image-resizer";
 import { sendEntityDelete } from "./client";
-import { addCharToWord, deleteCharFromWord } from "./input";
+import { setChatWord } from "./input";
 
 const config = {
   quality: 0.4,
@@ -32,47 +32,10 @@ let fakeInput = document.getElementById("fake-input");
 // });
 
 
-let lastCompositionInput = "";
-
-// This is a hack for android browsers, which don't register proper 'keydown events'
+// This is a hack for android browsers, which don't register proper 'keydown' events
 // so we use the 'input' event instead
 fakeInput.addEventListener("input", event => {
-  console.log("input", event);
-
-  switch (event.inputType) {
-  case 'insertCompositionText':
-    // event.data represents a partial string e.g. 'hel'
-    // only pass the last character
-    let data = event.data || "";
-    if (data.length > lastCompositionInput.length) {
-      // added a character to a composition
-      let lastChar = data.slice(-1);
-      addCharToWord(lastChar);
-      if (lastChar == " ") {
-        data = ""; // urgh another stupid workaround
-      }
-    } else {
-      // pressed backspace during a composition event
-      deleteCharFromWord();
-    }
-    lastCompositionInput = data;
-    break;
-  case 'insertText':
-    // event.data is a single character?
-    // this seems to happen for numeric characters, special chars etc
-    if (event.data) {
-      addCharToWord(event.data);
-    }
-    lastCompositionInput = "";
-    break;
-  case 'deleteContentBackward':
-    // hit backspace
-    lastCompositionInput = deleteCharFromWord();
-    break;
-  default:
-    console.warn('unknown inputType:', event.inputType);
-  }
-
+  fakeInput.value = setChatWord(fakeInput.value);
 });
 
 // Note: A single file comes from event.target.files on <input>

@@ -16,20 +16,10 @@ function convertTarget(t: Matter.Vector) {
   return Vector.sub(Vector.add(zPos, camera), zCenter);
 }
 
-function addCharToWord(char) {
-  console.log("addCharToWord", char);
+// truncate input to 4 chars and set as chat text (and return truncated word)
+function setChatWord(word) {
   let { me } = getState();
-  me.word += char;
-  if (me.word.length >= 4) {
-    me.word = me.word.slice(-4);
-  }
-  console.log(me.word, me.word.length);
-  return me.word;
-}
-
-function deleteCharFromWord() {
-  let { me } = getState();
-  me.word = me.word.slice(0, me.word.length - 1);
+  me.word = word.slice(-4);
   return me.word;
 }
 
@@ -94,37 +84,44 @@ function startInput() {
   let keypoll: number;
   window.addEventListener("keydown", event => {
     let { key, keyCode } = event;
-      let { me } = getState();
-      if (key == "Control") {
-        console.log("focusing");
-        document.getElementById("fake-input").focus();
-      }
-      if (event.getModifierState("Control")) {
-        return;
-      }
-      if (!me.word) {
-        me.word = "";
-      }
-      if (key.length == 1) {
-        addCharToWord(key);
-      }
-      if (key == "Backspace" || key == "Delete") {
-        event.preventDefault();
-        deleteCharFromWord();
-      }
-      if (keyCode === 37) {
-        left = true;
-      }
-      if (keyCode === 38) {
-        up = true;
-      }
-      if (keyCode === 39) {
-        right = true;
-      }
-      if (keyCode === 40) {
-        down = true;
-      }
-      keypoll = window.setInterval(pollKeys, 16);
+    let { me } = getState();
+
+    console.log("keydown", event);
+
+    if (key == "Control") {
+      console.log("focusing");
+      document.getElementById("fake-input").focus();
+    }
+    if (event.getModifierState("Control")) {
+      return;
+    }
+
+
+    if (!me.word) {
+      me.word = "";
+    }
+    if (key.length == 1) {
+      setChatWord(me.word + key);
+    }
+    if (key == "Backspace" || key == "Delete") {
+      event.preventDefault();
+      setChatWord(me.word.slice(0, me.word.length - 1));
+    }
+
+
+    if (keyCode === 37) {
+      left = true;
+    }
+    if (keyCode === 38) {
+      up = true;
+    }
+    if (keyCode === 39) {
+      right = true;
+    }
+    if (keyCode === 40) {
+      down = true;
+    }
+    keypoll = window.setInterval(pollKeys, 16);
   });
   window.addEventListener("keyup", event => {
     let { keyCode } = event;
@@ -171,4 +168,4 @@ function startInput() {
   }
 }
 
-export { startInput, convertTarget, addCharToWord, deleteCharFromWord };
+export { startInput, convertTarget, setChatWord };
