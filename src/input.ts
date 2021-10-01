@@ -15,6 +15,14 @@ function convertTarget(t: Matter.Vector) {
   // console.log(t);
   return Vector.sub(Vector.add(zPos, camera), zCenter);
 }
+
+// truncate input to 4 chars and set as chat text (and return truncated word)
+function setChatWord(word) {
+  let { me } = getState();
+  me.word = word.slice(-4);
+  return me.word;
+}
+
 let mouseDown = false;
 function startInput() {
   window.addEventListener("click", event => {
@@ -77,6 +85,9 @@ function startInput() {
   window.addEventListener("keydown", event => {
     let { key, keyCode } = event;
     let { me } = getState();
+
+    console.log("keydown", event);
+
     if (key == "Control") {
       console.log("focusing");
       document.getElementById("fake-input").focus();
@@ -84,19 +95,20 @@ function startInput() {
     if (event.getModifierState("Control")) {
       return;
     }
+
+
     if (!me.word) {
       me.word = "";
     }
     if (key.length == 1) {
-      if (me.word.length >= 4) {
-        me.word = me.word.slice(1);
-      }
-      me.word += key;
+      setChatWord(me.word + key);
     }
     if (key == "Backspace" || key == "Delete") {
       event.preventDefault();
-      me.word = me.word.slice(0, me.word.length - 1);
+      setChatWord(me.word.slice(0, me.word.length - 1));
     }
+
+
     if (keyCode === 37) {
       left = true;
     }
@@ -156,4 +168,4 @@ function startInput() {
   }
 }
 
-export { startInput, convertTarget };
+export { startInput, convertTarget, setChatWord };
