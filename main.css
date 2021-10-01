@@ -12,6 +12,21 @@ body {
 * {
   user-select: none !important;
 }
+
+#scaling-frame {
+  overscroll-behavior-y: none;
+  overscroll-behavior-x: none;
+  position: absolute;
+  /*overflow: hidden;*/
+
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+
+  background-color: #fd28fC;
+}
+
 #window {
   overscroll-behavior-y: none;
   overscroll-behavior-x: none;

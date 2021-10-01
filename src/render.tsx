@@ -25,7 +25,7 @@ function renderAgent(agent: AgentLayout, i: number) {
   let { pos, moving, facing, color, word } = agent;
 
   let newsrc = moving ? walk : stand;
-  let relPos = Vector.add(Vector.sub(pos, camera), center);
+  // let relPos = Vector.add(Vector.sub(pos, camera), center);
 
   return (
     <React.Fragment key={i}>
@@ -45,8 +45,8 @@ function renderAgent(agent: AgentLayout, i: number) {
         className="speech"
         key={"w" + agent.uuid}
         style={{
-          left: relPos.x,
-          top: relPos.y
+          left: pos.x,
+          top: pos.y
           // filter: `sepia(1) saturate(2.5) hue-rotate(${color}deg)`,
           // transform: `translate(-50%, -75%)`
         }}
@@ -58,8 +58,8 @@ function renderAgent(agent: AgentLayout, i: number) {
         src={newsrc}
         key={agent.uuid}
         style={{
-          left: relPos.x,
-          top: relPos.y,
+          left: pos.x,
+          top: pos.y,
           filter: `saturate(2.5) hue-rotate(${color}deg)`,
           transform: `translate(-50%, -75%) scaleX(${facing ? -1 : 1})`
         }}
@@ -67,11 +67,53 @@ function renderAgent(agent: AgentLayout, i: number) {
     </React.Fragment>
   );
 }
-function render() {
-  const { camera, entities, me, agents, center } = getState();
-  const cameraPos = Vector.sub(center, camera);
+function render(godmode:boolean) {
+  const { camera, entities, me, agents, center, frame } = getState();
+  //let cameraPos = Vector.sub(center, camera); 
+  let cameraCenter = camera;
+  // let cameraPos = Vector.sub(camera, center); // cameraPos is top-left corner of camera
+  let scale = 1.0;
+
+  if (godmode) {
+    const imageSize = 500; // seems to be the max w/h of images
+    // Find bounds of map
+    const bounds = entities.reduce((acc, {pos, scale}) => {
+      return {
+        minX: Math.min(acc.minX, pos.x - scale*imageSize/2),
+        maxX: Math.max(acc.maxX, pos.x + scale*imageSize/2),
+        minY: Math.min(acc.minY, pos.y - scale*imageSize/2),
+        maxY: Math.max(acc.maxY, pos.y + scale*imageSize/2)
+      }
+    }, {
+      minX: Number.POSITIVE_INFINITY,
+      maxX: Number.NEGATIVE_INFINITY,
+      minY: Number.POSITIVE_INFINITY,
+      maxY: Number.NEGATIVE_INFINITY
+    });
+
+
+    cameraCenter = {
+      x: 0.5*(bounds.minX + bounds.maxX),
+      y: 0.5*(bounds.minY + bounds.maxY)
+    }
+
+    //console.log(bounds);
+
+    const padding = 100;
+
+    const scaleX = frame.x/(bounds.maxX - bounds.minX + 2*padding);
+    const scaleY = frame.y/(bounds.maxY - bounds.minY + 2*padding);
+    scale = Math.min(1.0, scaleX, scaleY);
+  }
+
+  let cameraPos = Vector.sub(cameraCenter, center); // cameraPos is top-left corner of camera
+
   const element = (
-    <React.Fragment>
+    <div id="scaling-frame"
+      style={{
+                transform: `scale(${scale}) translate(${-cameraPos.x}px, ${-cameraPos.y}px`
+              }}
+    >
       {agents.map(renderAgent)}
       <div
         id="entities"
@@ -79,10 +121,9 @@ function render() {
           deleting: window.deleteMode,
           moving: window.moveMode
         })}
-        style={{ transform: `translate(${cameraPos.x}px,${cameraPos.y}px ) ` }}
       >
         <div id="info">
-	  <img src={hello_frog} ></img>
+	        <img src={hello_frog} ></img>
           <p style={{ float: "right" }}>Hello Friends, this is our collaborative frog trying to frog the opportunity of a bunch of frog online froging frog frog frog frog because so far I don’t really know what to do</p>
         </div>
         {entities.map(({ url, pos, scale, uuid }, i) => {
@@ -108,7 +149,7 @@ function render() {
           );
         })}
       </div>
-    </React.Fragment>
+    </div>
   );
   ReactDOM.render(element, document.getElementById("window"));
   dragElement(document.getElementById("window"));
