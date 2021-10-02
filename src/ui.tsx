@@ -13,6 +13,7 @@ import subtract from "./../assets/subtract.gif";
 import { readAndCompressImage } from "browser-image-resizer";
 import { sendEntityDelete } from "./client";
 import { setChatWord } from "./input";
+import { deviceIsMobileOrTablet } from "./utils";
 
 const config = {
   quality: 0.4,
@@ -33,10 +34,12 @@ let fakeInput = document.getElementById("fake-input");
 
 
 // This is a hack for android browsers, which don't register proper 'keydown' events
-// so we use the 'input' event instead
-fakeInput.addEventListener("input", event => {
-  fakeInput.value = setChatWord(fakeInput.value);
-});
+// so we use the 'input' event on mobile instead
+if (deviceIsMobileOrTablet()) {
+  fakeInput.addEventListener("input", event => {
+    fakeInput.value = setChatWord(fakeInput.value);
+  });
+}
 
 // Note: A single file comes from event.target.files on <input>
 document.body.addEventListener("drop", e => {
